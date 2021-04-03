@@ -1,0 +1,10 @@
+{
+  "position": {
+    "right": 5,
+    "bottom": 5,
+    "zIndex": 100,
+    "targeting": "absolute"
+  },
+  "visibilityHeight": 100,
+  "backgroundColor": "#41b883"
+}

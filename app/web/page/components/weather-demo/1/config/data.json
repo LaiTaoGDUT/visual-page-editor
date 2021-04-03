@@ -1,0 +1,21 @@
+{
+  "city": "深圳",
+  "dateTime": "2021-01-02 21:34:33",
+  "color": "#fff",
+  "image": "",
+  "jsonExample": {
+    "dsad": "dasdasd"
+  },
+  "mutiSelect": ["apple"],
+  "objectArray": [
+    {
+      "name": "Jack",
+      "age": 10,
+      "other": {
+        "sex": "Male",
+        "color": "#000"
+      }
+    }
+  ],
+  "normalArray": ["hello"]
+}

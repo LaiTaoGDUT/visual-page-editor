@@ -1,0 +1,56 @@
+'use strict';
+
+const RESPONSE_CODE = {
+  SUCCESS: 200,
+  FAIL: 0,
+  PARAMS_ERROR: 1,
+  LOGIN_FAIL: 301,
+  NOT_LOGIN: 302,
+  LOGIN_SUCCESS: 300,
+  NO_PAGE_PERMISSION: 401,
+  PAGE_NOT_EXIST: 402,
+  SAVE_COMP_DATA_FAIL: 403,
+  PAGE_NAME_REPEAT: 404,
+  PAGE_NAME_TOO_LONG: 405,
+  DOC_NAME_TOO_LONG: 406,
+  PAGE_VERSION_NAME_TOO_LONG: 407,
+  PAGE_VERSION_NAME_NOT_ALLOW_EMPTY: 408,
+  PAGE_VERSION_NAME_REPEAT: 409,
+  PAGE_VERSION_NOT_EXIST: 410,
+  PAGE_VERSION_NOT_PUBLISH: 411,
+  PAGE_VERSION_HAS_PUBLISHED: 412,
+  PAGE_NAME_NOT_ALLOW_EMPTY: 413,
+  NO_TEMPLATE_PERMISSION: 501,
+  TEMPLATE_NAME_REPEAT: 502,
+  TEMPLATE_NAME_NOT_ALLOW_EMPTY: 503,
+};
+
+const CODE_MESSAGES = {
+  0: 'Fail',
+  1: '参数错误',
+  200: 'Ok',
+  300: '登录成功',
+  301: '账号或密码错误',
+  302: '账号未登录',
+  401: '没有该项目的权限',
+  402: '项目不存在',
+  403: '保存页面数据失败',
+  404: '页面名称与其它页面重复',
+  405: '页面名称超过20字符',
+  406: '文档名称超过100字符',
+  407: '页面版本名称长度超出限制',
+  408: '页面版本名称不能为空',
+  409: '页面版本名称已存在',
+  410: '页面版本不存在',
+  411: '页面版本未发布',
+  412: '页面版本已经发布',
+  413: '页面名称不能为空',
+  501: '没有该模板的权限',
+  502: '模板名称已存在',
+  503: '模板名称不能为空',
+};
+
+module.exports = {
+  RESPONSE_CODE,
+  CODE_MESSAGES,
+};

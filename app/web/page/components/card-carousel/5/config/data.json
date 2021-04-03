@@ -1,0 +1,27 @@
+{
+  "interval": 6,
+  "arrow": "hover时显示",
+  "indicatorPosition": "显示",
+  "carouselList": [
+    {
+      "img": "http://img.xjh.me/desktop/bg/nature/64979640_p0.jpg",
+      "link": "",
+      "desc": ""
+    },
+    {
+      "img": "http://img.xjh.me/desktop/bg/nature/63513874_p0.jpg",
+      "link": "",
+      "desc": ""
+    },
+    {
+      "img": "http://img.xjh.me/desktop/bg/nature/63017907_p0.jpg",
+      "link": "",
+      "desc": ""
+    },
+    {
+      "img": "http://img.xjh.me/desktop/bg/nature/65144542_p0.jpg",
+      "link": "",
+      "desc": ""
+    }
+  ]
+}

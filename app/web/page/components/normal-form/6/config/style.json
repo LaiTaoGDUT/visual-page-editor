@@ -1,0 +1,19 @@
+{
+  "size": "中",
+  "labelColor": "#606266",
+  "fontSize": 14,
+  "clearBgColor": "#ffffff",
+  "clearColor": "#606266",
+  "submitBgColor": "#41b883",
+  "submitColor": "#ffffff",
+  "leftPadding": 20,
+  "rightPadding": 20,
+  "topPadding": 20,
+  "bottomPadding": 20,
+  "backgroundColor": "#ffffff",
+  "backgroundImage": "",
+  "backgroundSize": "cover",
+  "backgroundWidth": "100%",
+  "backgroundHeight": "100%",
+  "backgroundRepeat": false
+}
