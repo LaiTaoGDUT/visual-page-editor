@@ -23,35 +23,57 @@
       </a-tab-pane>
       <a-tab-pane key="2" tab="组件配置">
         <div v-if="componentDetail" class="component-config">
-          <div style="margin: 16px 16px;display: flex;justify-content: space-between;">
-            <el-switch
-              v-model="compConfigSwitch"
-              active-text="样式配置"
-              inactive-text="属性配置"
-              active-color="#41b883"
-              inactive-color="#41b883"
-            >
-            </el-switch>
-            <a-icon type="fullscreen" style="font-size: 20px;cursor: pointer;" @click="dataConfigDialogVisible = true"/>
+          <div style="margin: 16px;display: flex;justify-content: center;" class="painter-mode">
+            <a-radio-group :value="mode" @change="handleModeChange">
+              <a-radio-button value="form"> 表单 </a-radio-button>
+              <a-radio-button value="code"> 代码 </a-radio-button>
+            </a-radio-group>
           </div>
-          <comp-info-config
-            v-if="!isPComponent"
-            v-show="!compConfigSwitch"
-          ></comp-info-config>
-          <pcomp-info-config
-            v-if="isPComponent"
-            v-show="!compConfigSwitch"
-          ></pcomp-info-config>
-          <json-editor
-            v-show="!compConfigSwitch"
-            :schema="componentDetail.cSchema"
-            v-model="cComponent.data"
-          ></json-editor>
-          <json-editor
-            v-show="compConfigSwitch"
-            :schema="componentDetail.cStyleSchema"
-            v-model="cComponent.style"
-          ></json-editor>
+          <div v-show="mode == 'form'">
+            <div style="margin: 16px 16px;display: flex;justify-content: space-between;">
+              <el-switch
+                v-model="compConfigSwitch"
+                active-text="样式配置"
+                inactive-text="属性配置"
+                active-color="#41b883"
+                inactive-color="#41b883"
+              >
+              </el-switch>
+              <a-icon type="fullscreen" style="font-size: 20px;cursor: pointer;" @click="dataConfigDialogVisible = true"/>
+            </div>
+            <comp-info-config
+              v-if="!isPComponent"
+              v-show="!compConfigSwitch"
+            ></comp-info-config>
+            <pcomp-info-config
+              v-if="isPComponent"
+              v-show="!compConfigSwitch"
+            ></pcomp-info-config>
+            <json-editor
+              v-show="!compConfigSwitch"
+              :schema="componentDetail.cSchema"
+              v-model="cComponent.data"
+            ></json-editor>
+            <json-editor
+              v-show="compConfigSwitch"
+              :schema="componentDetail.cStyleSchema"
+              v-model="cComponent.style"
+            ></json-editor>
+          </div>
+          <div v-show="mode == 'code'">
+            <div style="margin: 16px 16px;display: flex;justify-content: space-between;">
+              <el-switch
+                v-model="codeTypeSwitch"
+                active-text="组件数据规范"
+                inactive-text="组件数据"
+                active-color="#41b883"
+                inactive-color="#41b883"
+              >
+              </el-switch>
+              <a-icon type="fullscreen" style="font-size: 20px;cursor: pointer;" @click="codeDialogVisible = true"/>
+            </div>
+            <div id="date-config-code" style="width: 100%; height: 600px"></div>
+          </div>
         </div>
         <div v-else style="margin-top: 30px">
           <a-empty>
@@ -97,6 +119,19 @@
         </a-empty>
       </div>
     </el-dialog>
+    <el-dialog title="组件配置" :visible.sync="codeDialogVisible" :fullscreen="true">
+      <div style="margin: 16px 16px;display: flex;justify-content: space-between;">
+        <el-switch
+          v-model="codeTypeSwitch"
+          active-text="组件数据规范"
+          inactive-text="组件数据"
+          active-color="#41b883"
+          inactive-color="#41b883"
+        >
+        </el-switch>
+      </div>
+      <div id="date-config-code-full" style="width: 100%; height: 800px"></div>
+    </el-dialog>
   </div>
 </template>
 
@@ -106,6 +141,7 @@ import baseInfoConfig from './baseInfoConfig';
 import { mapGetters, mapMutations, mapState } from "vuex";
 import PcompInfoConfig from "./pcompInfoConfig.vue";
 import compInfoConfig from "./compInfoConfig.vue";
+import * as monaco from "monaco-editor";
 export default {
   components: {
     JsonEditor,
@@ -117,9 +153,28 @@ export default {
     return {
       compConfigSwitch: false,
       pageConfigSwitch: false,
+      codeTypeSwitch: false,
       isPComponent: false,
       activeTab: '1',
       dataConfigDialogVisible: false,
+      codeDialogVisible: false,
+      mode: 'form',
+      jsonEditorOptions: {
+        language: "json",
+        minimap: {
+          // 关闭小地图
+          enabled: false,
+        },
+        mouseWheelZoom: true, // 开启 Ctrl + 滚轮 缩放
+        lineNumbers: "off",
+        glyphMargin: false,
+        folding: true,
+        lineDecorationsWidth: 0,
+        lineNumbersMinChars: 0,
+        renderIndentGuides: true,
+      },
+      monacoInstance: null,
+      monacoInstanceFull: null,
     };
   },
   props: ["pageId"],
@@ -130,6 +185,60 @@ export default {
     pCurrentComponent() {
       this.activeTab = '2'
     },
+    componentDetail(newVal) {
+      if (newVal) {
+        if (!this.monacoInstance) {
+          let _mode = this.mode;
+          this.mode = 'code';
+          this.$nextTick(() => {
+            this.monacoInstance = monaco.editor.create(
+              document.getElementById("date-config-code"),
+              {
+                value: JSON.stringify(this.showPageData, null, 4),
+                ...this.jsonEditorOptions,
+                readOnly: true,
+              }
+            );
+            setTimeout(() => {
+              this.mode = _mode;
+            })
+          })
+        }
+      } else {
+        this.monacoInstance = null;
+        this.monacoInstanceFull = null;
+      }
+    },
+    codeDialogVisible(newVal) {
+      if (newVal) {
+        this.$nextTick(() => {
+          if (!this.monacoInstanceFull) {
+            this.monacoInstanceFull = monaco.editor.create(
+              document.getElementById("date-config-code-full"),
+              {
+                value: JSON.stringify(this.showPageData, null, 4),
+                ...this.jsonEditorOptions,
+                readOnly: true,
+              }
+            );
+          }
+        })
+      }
+    },
+    showPageData: {
+      handler(newVal) {
+        if (!this.monacoInstance) {
+          return;
+        }
+        const model = this.monacoInstance.getModel();
+        model.setValue(JSON.stringify(newVal, null, 4));
+        if (this.monacoInstanceFull) {
+          const modelFull = this.monacoInstanceFull.getModel();
+          modelFull.setValue(JSON.stringify(newVal, null, 4));
+        }
+      },
+      deep: true
+    }
   },
   computed: {
     ...mapState("compLib", ["pCompLib"]),
@@ -162,6 +271,21 @@ export default {
         );
       }
     },
+    showPageData() {
+      if (this.componentDetail)  {
+        return this.codeTypeSwitch ? {
+          dataSchema: this.componentDetail.cSchema,
+          styleSchema: this.componentDetail.cStyleSchema,
+        } : this.cComponent;
+      } else {
+        return {};
+      }
+    },
+  },
+  methods: {
+    handleModeChange(e) {
+      this.mode = e.target.value;
+    }
   },
 };
 </script>

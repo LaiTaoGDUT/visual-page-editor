@@ -5,10 +5,8 @@ module.exports = app => {
   router.get('/api/pages/detail', controller.pages.detail);
   router.post('/api/pages/create', checkLogin, controller.pages.create);
   router.post('/api/pages/delete', checkLogin, controller.pages.delete);
-  router.post('/api/pages/saveCompData', checkLogin, controller.pages.saveCompData);
-  router.post('/api/pages/saveShoot', checkLogin, controller.pages.saveShoot);
+  router.post('/api/pages/savePage', checkLogin, controller.pages.savePage);
   router.post('/api/pages/checkPageNameRepeat', checkLogin, controller.pages.checkPageNameRepeat);
-  router.post('/api/pages/saveBaseInfo', checkLogin, controller.pages.saveBaseInfo);
   router.get('/api/pages/versionList', checkLogin, controller.pages.versionList);
   router.post('/api/pages/createVersion', checkLogin, controller.pages.createVersion);
   router.post('/api/pages/publishVersion', checkLogin, controller.pages.publishVersion);

@@ -208,7 +208,7 @@ export default {
         const self = this;
         this.$confirm({
           title: `是否切换为版本${this.curVersionId}`,
-          content: "不同版本数据可能不共通，是否继续",
+          content: "不同版本数据不共通，切换版本后该组件数据将恢复默认值，是否继续？",
           onOk() {
             return new Promise((resolve, reject) => {
               self.changeComponentVersion({

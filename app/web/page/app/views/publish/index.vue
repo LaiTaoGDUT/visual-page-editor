@@ -1,5 +1,5 @@
 <template>
-  <div class="preview">
+  <div class="publish" :style="styleData" style="position: relative">
     <component
       v-for="component in [...components, ...pComponents]"
       :key="component.name"
@@ -61,4 +61,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.publish {
+  min-width: 100vw;
+  min-height: 100vh;
+}
 </style>

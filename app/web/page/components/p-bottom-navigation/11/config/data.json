@@ -1,0 +1,21 @@
+{
+    "defaultSelect": "第一项",
+    "iconResource": "",
+    "itemList": [
+      {
+        "icon": "home",
+        "name": "主页",
+        "link": "https://www.baidu.com"
+      },
+      {
+        "icon": "search",
+        "name": "发现",
+        "link": "https://www.baidu.com"
+      },
+      {
+        "icon": "user",
+        "name": "我的",
+        "link": "https://www.baidu.com"
+      }
+    ]
+  }

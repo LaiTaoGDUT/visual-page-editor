@@ -10,7 +10,7 @@
   "rightPadding": 20,
   "topPadding": 20,
   "bottomPadding": 20,
-  "backgroundColor": "#ffffff",
+  "backgroundColor": "rgba(255, 255, 255, 0)",
   "backgroundImage": "",
   "backgroundSize": "cover",
   "backgroundWidth": "100%",

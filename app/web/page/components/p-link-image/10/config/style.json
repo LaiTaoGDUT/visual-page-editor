@@ -1,0 +1,10 @@
+{
+  "position": {
+    "right": "5vw",
+    "bottom": "5vh",
+    "zIndex": 100,
+    "position": "absolute"
+  },
+  "width": 0,
+  "height": 0
+}

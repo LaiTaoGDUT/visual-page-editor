@@ -3,7 +3,7 @@
     <slot name="header"></slot>
     <a-form-item>
         <span style="padding-right: 10px;" :style="{color: nData ? 'rgba(0, 0, 0, 0.65)' : '#000'}">{{ switchText[0] }}</span>
-        <a-switch v-model="nData" @change="handleChange">
+        <a-switch v-model="nData" @change="handleChange" :disabled="disabled2">
         <a-icon slot="checkedChildren" type="check" />
         <a-icon slot="unCheckedChildren" type="close" />
         </a-switch>

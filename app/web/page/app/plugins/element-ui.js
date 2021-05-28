@@ -15,6 +15,9 @@ import {
     Select,
     Option,
     Button,
+    Timeline,
+    TimelineItem,
+    Card
 } from 'element-ui';
 
 Vue.use(Image);
@@ -31,3 +34,6 @@ Vue.use(Input);
 Vue.use(Select);
 Vue.use(Option);
 Vue.use(Button);
+Vue.use(Timeline);
+Vue.use(TimelineItem);
+Vue.use(Card);

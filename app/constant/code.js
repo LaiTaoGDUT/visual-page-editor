@@ -6,6 +6,10 @@ const RESPONSE_CODE = {
   PARAMS_ERROR: 1,
   LOGIN_FAIL: 301,
   NOT_LOGIN: 302,
+  EMAIL_REPEAT: 303,
+  PASS_INVALID: 304,
+  USERNAME_INVALID: 305,
+  REGISTER_FAIL: 306,
   LOGIN_SUCCESS: 300,
   NO_PAGE_PERMISSION: 401,
   PAGE_NOT_EXIST: 402,
@@ -23,6 +27,8 @@ const RESPONSE_CODE = {
   NO_TEMPLATE_PERMISSION: 501,
   TEMPLATE_NAME_REPEAT: 502,
   TEMPLATE_NAME_NOT_ALLOW_EMPTY: 503,
+  HISTORY_NOT_EXIST: 600,
+  NO_HISTORY_PERMISSION: 601
 };
 
 const CODE_MESSAGES = {
@@ -32,6 +38,10 @@ const CODE_MESSAGES = {
   300: '登录成功',
   301: '账号或密码错误',
   302: '账号未登录',
+  303: '邮箱已注册',
+  304: '密码格式错误',
+  305: '用户名格式错误',
+  306: '注册失败',
   401: '没有该项目的权限',
   402: '项目不存在',
   403: '保存页面数据失败',
@@ -48,6 +58,8 @@ const CODE_MESSAGES = {
   501: '没有该模板的权限',
   502: '模板名称已存在',
   503: '模板名称不能为空',
+  600: '历史记录不存在',
+  601: '没有该历史记录的访问权限'
 };
 
 module.exports = {

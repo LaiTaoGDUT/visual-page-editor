@@ -15,26 +15,28 @@ export async function createPage(pName) {
 export async function deletePage(pageId) {
   return await post('/pages/delete', { pageId })
 }
-export async function saveCompData(pageId, compData) {
-  return await post('/pages/saveCompData', {
+
+export async function savePage({ pageId, saveType, ...data }) {
+  if (!saveType) {
+    return await post('/pages/savePage', {
+      pageId,
+      saveType: 1,
+      ...data
+    })
+  }
+  return await post('/pages/savePage', {
     pageId,
-    compData
+    saveType,
+    ...data
   })
 }
 
-export async function saveShoot(pageId, shoot) {
-  return await post('/pages/saveShoot', {
-    pageId,
-    shoot
-  })
+export async function saveCompData(pageId, compData, styleData, shoot) {
+  return await savePage ({ pageId, saveType: 2, compData, styleData, shoot})
 }
 
 export async function saveBaseInfo(pageId, pageName, pageDocName) {
-  return await post('/pages/saveBaseInfo', {
-    pageId,
-    pageName,
-    pageDocName
-  })
+  return await savePage ({ pageId, saveType: 3, pageName, pageDocName})
 }
 
 export async function checkPageNameRepeat(pageId, pageName) {

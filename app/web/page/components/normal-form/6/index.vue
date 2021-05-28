@@ -37,6 +37,20 @@
             :key="option"
           ></el-option>
         </el-select>
+        <a-radio-group v-model="form[formItem.name]" v-else-if="formItem.type == '垂直单选框'">
+          <a-radio
+            :value="option"
+            v-for="option in getOptions(formItem.optionList)"
+            :key="option"
+            :style="radioStyle"
+          >
+            {{ option }}
+          </a-radio>
+          <a-radio :value="formItem.canInputOther" v-if="formItem.canInputOther" :style="radioStyle">
+            {{ formItem.canInputOther }}
+            <el-input v-if="form[formItem.name] === formItem.canInputOther" :maxlength="formItem.limit ? formItem.limit : -1" :style="{ width: 100, marginLeft: 10 }" v-model="radioOtherInputForm[formItem.name]" />
+          </a-radio>
+        </a-radio-group>
         <el-input
           v-else
           v-model="form[formItem.name]"
@@ -44,6 +58,9 @@
           :type="formItem.type == '多行输入框' ? 'textarea' : 'text'"
           :maxlength="formItem.limit ? formItem.limit : -1"
           :show-word-limit="!!formItem.limit"
+          :rows="3"
+          :autoSize="formItem.autoSize ? {minRows: 3} : false"
+          resize="vertical"
         ></el-input>
       </el-form-item>
       <div style="display: flex; padding-top: 10px">
@@ -70,6 +87,9 @@
         >
       </div>
     </el-form>
+    <div v-show="showTips" :style="{ color: showTips == 'success' ? '#41b883' : '#f5222d', fontSize: styles.fontSize + 'px'}" style="text-align: center;">
+      {{ tips }}
+    </div>
   </div>
 </template>
 
@@ -90,7 +110,15 @@ export default {
   data() {
     return {
       form: null,
+      radioOtherInputForm: null,
       formRules: null,
+      showTips: '',
+      tips: '',
+      radioStyle: {
+        display: 'block',
+        height: '30px',
+        lineHeight: '30px',
+      },
     };
   },
   created() {
@@ -143,6 +171,17 @@ export default {
         });
       },
     },
+    config: {
+      handler() {
+        this.initFormData();
+        this.initFormRule();
+        setTimeout(() => {
+          this.$refs["form"].resetFields();
+        })
+      },
+      deep: true,
+      immediate: false
+    }
   },
   computed: {
     size() {
@@ -158,10 +197,15 @@ export default {
     initFormData() {
       const itemList = this.config.itemList;
       const form = {};
+      const radioOtherInputForm = {};
       for (let item of itemList) {
         form[item.name] = "";
+        if (item.canInputOther) {
+          radioOtherInputForm[item.name] = "";
+        }
       }
       this.form = form;
+      this.radioOtherInputForm = radioOtherInputForm;
     },
     initFormRule() {
       const itemList = this.config.itemList;
@@ -193,28 +237,36 @@ export default {
       const self = this;
       this.$refs["form"].validate(async (valid) => {
         if (valid) {
-          console.log(self.form);
           if (!self.config.submitLink) {
             self.$message.error('未配置接口地址！')
             return false;
           }
-          const res = await post(self.config.submitLink, self.form);
-          if (res.status == 200) {
-            self.handleSubmitSuccess();
-            self.$message.success(res.msg);
+          const submitForm = {};
+          for (let key of Object.keys(self.form)) {
+            submitForm[key] = self.radioOtherInputForm[key] || self.form[key];
+          }
+          const res = await post(self.config.submitLink, submitForm);
+          if (res.code == 200) {
+            self.handleSubmitSuccess(res.msg);
           } else {
-            self.handleSubmitFailed();
+            self.handleSubmitFailed(res.msg);
           }
         } else {
           return false;
         }
       });
     },
-    handleSubmitSuccess() {
+    handleSubmitSuccess(msg) {
       this.handleSubmitResult(this.config.aftSuccess);
+      this.showTips = 'success';
+      this.tips = this.config.successText || msg || '提交成功！';
+      this.delayHideTips();
     },
-    handleSubmitFailed() {
+    handleSubmitFailed(msg) {
       this.handleSubmitResult(this.config.aftFailed);
+      this.showTips = 'failed';
+      this.tips = this.config.failText || msg || '提交失败！';
+      this.delayHideTips();
     },
     handleSubmitResult(action) {
       switch (action) {
@@ -227,6 +279,11 @@ export default {
           break;
       }
     },
+    delayHideTips() {
+      setTimeout(() => {
+        this.showTips = '';
+      }, 3000)
+    }
   },
 };
 </script>

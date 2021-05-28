@@ -1,9 +1,11 @@
 {
-  "submitLink": "",
+  "submitLink": "http://127.0.0.1:7001//api/pages/testNormalForm",
   "submitText": "提交",
   "clearText": "清空",
   "aftSuccess": "清空输入",
   "aftFailed": "维持原状",
+  "successText": "",
+  "failText": "",
   "itemList": [
     {
       "type": "单行输入框",
@@ -12,7 +14,9 @@
       "placeholder": "请输入一些文本",
       "need": "该项为必填项",
       "limit": 20,
-      "optionList": ""
+      "autoSize": false,
+      "optionList": "",
+      "canInputOther": ""
     },
     {
       "type": "多行输入框",
@@ -21,7 +25,9 @@
       "placeholder": "请输入一些文本",
       "need": "",
       "limit": 500,
-      "optionList": ""
+      "autoSize": true,
+      "optionList": "",
+      "canInputOther": ""
     },
     {
       "type": "下拉选择框",
@@ -30,7 +36,20 @@
       "placeholder": "请选择一个选项",
       "need": "",
       "limit": 0,
-      "optionList": ""
+      "autoSize": false,
+      "optionList": "选项1,选项2",
+      "canInputOther": ""
+    },
+    {
+      "type": "垂直单选框",
+      "name": "radioInput",
+      "label": "垂直单选框",
+      "placeholder": "请选择一个选项",
+      "need": "",
+      "limit": 10,
+      "autoSize": false,
+      "optionList": "选项1,选项2,选项3",
+      "canInputOther": "其它"
     }
   ]
 }

@@ -1,6 +1,24 @@
 <template>
   <a-form-item :validate-status="validateStatus" :help="errorMsg" has-feedback>
-    <a-input @change="handleStringChange" v-model="nData" :disabled="disabled2" :placeHolder="placeHolder"/>
+    <a-input
+      v-if="format != 'textarea'"
+      resize="vertical"
+      :autoSize="true"
+      @change="handleStringChange"
+      v-model="nData"
+      :disabled="disabled2"
+      :placeHolder="placeHolder"
+    />
+    <a-textarea
+      v-else
+      :auto-size="{ minRows: 3 }"
+      resize="vertical"
+      @change="handleStringChange"
+      v-model="nData"
+      :disabled="disabled2"
+      :placeHolder="placeHolder"
+    >
+    </a-textarea>
   </a-form-item>
 </template>
 
@@ -19,7 +37,7 @@ export default {
   watch: {
     oData(newVal) {
       this.nData = newVal;
-    }
+    },
   },
   methods: {
     validateInput(value) {

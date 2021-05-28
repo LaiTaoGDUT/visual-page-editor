@@ -11,8 +11,8 @@ module.exports = app => {
     userId: INTEGER,
     tName: STRING(20),
     createTime: DATE,
-    tStyleData: TEXT,
-    tCompData: TEXT,
+    tStyleData: TEXT('long'),
+    tCompData: TEXT('long'),
     tImageLink: TEXT,
   }, {
     freezeTableName: true,

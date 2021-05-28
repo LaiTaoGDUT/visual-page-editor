@@ -31,6 +31,6 @@ module.exports = {
     new MonacoWebpackPlugin({
       languages: ["json", "javascript"],
       features:["coreCommands","find"]
-    })
+    }),
   ]
 };

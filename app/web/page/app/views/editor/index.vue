@@ -3,16 +3,20 @@
     <loading :loading="loading"></loading>
     <publish-drawer v-model="publishDrawerVisible" :pageId="pageId" @openPreview="previewPage"></publish-drawer>
     <previewDialog v-model="previewVisible" :src="previewSrc" :title="previewTitle"></previewDialog>
+    <historyDialog v-model="historyVisible" title="历史保存记录" :pageId="pageId" @openPreview="previewPage"></historyDialog>
     <editor-header :title="pageName">
       <template  v-slot:backIcon >
         <a-icon type="left" class="editor-header__btn" />
       </template>
       <template v-slot:extra>
         <div class="editor-header-menu">
-          <a-button icon="eye" class="editor-header-menu__item" @click="previewPage(pageId, true)" type="link">
+          <a-button icon="history" class="editor-header-menu__item" @click="historyVisible = true" type="link">
+            历史记录
+          </a-button>
+          <a-button icon="eye" class="editor-header-menu__item" @click="previewPage(pageId, 'page')" type="link">
             预览
           </a-button>
-          <a-button :icon="dataSaving ? 'loading' : 'save'" class="editor-header-menu__item" @click="saveData" type="link" :disabled="dataSaving">
+          <a-button :disabled="(!baseInfoModifyFlag && !componentDataModifyFlag) || dataSaving" :icon="dataSaving ? 'loading' : 'save'" class="editor-header-menu__item" @click="saveData" type="link">
             保存
           </a-button>
           <a-button icon="cloud-upload" class="editor-header-menu__item" @click="publishDrawerVisible = true" type="link">
@@ -35,7 +39,7 @@
       </div>
       <div class="editor-resize"></div>
       <div class="editor-column" style="flex: 1 1 0%">
-        <painter></painter>
+        <painter :pageId="pageId"></painter>
       </div>
       <div class="editor-resize"></div>
       <div class="editor-column" style="width: 27%">
@@ -53,8 +57,9 @@ import editorHeader  from "./components/editorHeader";
 import publishDrawer from './components/publishDrawer';
 import loading from "@/components/loading";
 import previewDialog from './components/previewDialog';
+import historyDialog from './components/historyDialog';
 import { getCompDetail } from "@/services/components";
-import { getPageDetail, saveCompData, saveBaseInfo, saveShoot } from "@/services/pages";
+import { getPageDetail, saveCompData, saveBaseInfo, savePage } from "@/services/pages";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Sortable from "sortablejs";
 import pageShoot from '@/mixins/pageShoot';
@@ -67,7 +72,8 @@ export default {
     loading,
     editorHeader,
     publishDrawer,
-    previewDialog
+    previewDialog,
+    historyDialog
   },
   mixins: [pageShoot],
   data() {
@@ -78,7 +84,8 @@ export default {
       publishDrawerVisible: false,
       previewVisible: false,
       previewSrc: '',
-      previewTitle: ''
+      previewTitle: '',
+      historyVisible: false,
     };
   },
   created() {
@@ -87,11 +94,89 @@ export default {
   beforeRouteEnter (to, from, next) {
     next(async (vm) => {
       vm.loading = true;
-
       //初始化
       vm.selectComponent(-1);
       vm.pSelectComponent(-1);
-
+      console.log(JSON.stringify({
+  type: 'object',
+  title: '底部导航栏',
+  properties: {
+    position: {
+      type: 'object',
+      title: '定位',
+      description: '',
+      format: 'position',
+      properties: {
+        zIndex: {
+          title: '堆叠层级',
+          description: '自定位组件在当前堆叠上下文中的堆叠层级，当自定位组件之间重叠的时候， zIndex 较大的元素会覆盖较小的元素在上层进行显示，设置为负数时将被普通组件遮盖',
+          type: 'number'
+        },
+        position: {
+          title: '定位方式',
+          description: '指定自定位组件在文档中的定位方式，fixed：相对于窗口定位，absolute：相对于文档定位',
+          type: 'string',
+          enum: ['fixed', 'absolute'],
+          disabled: true
+        }
+      }
+    },
+    normalColor: {
+      type: 'string',
+      title: '菜单项颜色',
+      description: '设置菜单项的颜色',
+      format: 'color'
+    },
+    selectColor: {
+      type: 'string',
+      title: '菜单项选中颜色',
+      description: '设置选中菜单项的颜色',
+      format: 'color'
+    },
+    backgroundColor: {
+      title: '背景颜色',
+      description: '设置导航栏的背景颜色，会被轮播图覆盖',
+      type: 'string',
+      format: 'color',
+    },
+    fontSize: {
+      title: '字体大小',
+      description: '设置菜单项的字体大小，单位为px',
+      type: 'number',
+      renderTo: 'range',
+      format: '${value}px',
+      minimum: 10,
+      maximum: 60,
+    },
+    iconSize: {
+      title: '图标大小',
+      description: '设置菜单项图标的大小，单位为px',
+      type: 'number',
+      renderTo: 'range',
+      format: '${value}px',
+      minimum: 10,
+      maximum: 60,
+    },
+    paddingTop: {
+      title: '上边距',
+      description: '设置导航栏主体与组件上边界的距离，单位为px',
+      type: 'number',
+      renderTo: 'range',
+      format: '${value}px',
+      minimum: 0,
+      maximum: 300,
+    },
+    paddingBottom: {
+      title: '下边距',
+      description: '设置导航栏主体与组件下边界的距离，单位为px',
+      type: 'number',
+      renderTo: 'range',
+      format: '${value}px',
+      minimum: 0,
+      maximum: 300,
+    },
+  }
+}))
       vm.pageId = to.query.id;
       const res = await getPageDetail(vm.pageId);
       if (res.code === 200) {
@@ -102,6 +187,12 @@ export default {
         await vm.betchDetails(compData);
         vm.setComponents(compData.components);
         vm.pSetComponents(compData.pComponents);
+        vm.setBaseInfoModifyFlag(false);
+        vm.setComponentDataModifyFlag(false);
+        vm.inited = false;
+        setTimeout(() => {
+          vm.inited = true;
+        })
       } else {
         this.$router.go(-1);
       }
@@ -112,12 +203,48 @@ export default {
   computed: {
     ...mapState("component", ["components", "pComponents"]),
     ...mapState("compLib", ["compLib", "pCompLib"]),
-    ...mapState('page', ['pageName', 'pageDocName']),
+    ...mapState('page', ['pageName', 'pageDocName', 'styleData', 'baseInfoModifyFlag', 'componentDataModifyFlag']),
     ...mapGetters("compLib", ["compList"]),
     compTypes() {
       // 所有组件类型列表
       return Object.keys(this.compLib);
     },
+  },
+  watch: {
+    pageName() {
+      if (this.inited) {
+        this.setBaseInfoModifyFlag(true);
+      }
+    },
+    pageDocName() {
+      if (this.inited) {
+        this.setBaseInfoModifyFlag(true);
+      }
+    },
+    components: {
+      handler() {
+        if (this.inited) {
+          this.setComponentDataModifyFlag(true);
+        }
+      },
+      deep: true
+    },
+    pComponents: {
+      handler() {
+        if (this.inited) {
+          this.setComponentDataModifyFlag(true);
+        }
+      },
+      deep: true
+    },
+    styleData: {
+      handler() {
+        if (this.inited) {
+          this.setComponentDataModifyFlag(true);
+        }
+      },
+      deep: true
+    }
   },
   methods: {
     ...mapMutations("component", [
@@ -129,7 +256,7 @@ export default {
       "setComponents",
       "pSetComponents"
     ]),
-    ...mapMutations('page', ['setPageName', 'setPageDocName', "setPageStyleData"]),
+    ...mapMutations('page', ['setPageName', 'setPageDocName', "setPageStyleData", "setBaseInfoModifyFlag", "setComponentDataModifyFlag"]),
     // 初始化拖拽api
     initDragable() {
       // 组件拖拽实现
@@ -291,36 +418,52 @@ export default {
       this.selectComponent(-1);
       this.pSelectComponent(-1);
       await setTimeout(() => {}, 10);
-      const shoot = await this.genShoot();
-      const resArr = await Promise.all([
-        saveCompData(this.pageId, { components: this.components, pComponents: this.pComponents }),
-        saveBaseInfo(this.pageId, this.pageName, this.pageDocName),
-        saveShoot(this.pageId, shoot)
-      ])
-      const status = true;
-      resArr.forEach((res) => {
-        if (res.code !== 200) {
-          status = false;
-        }
-      })
-      if (status) {
+      let res = null;
+      if (this.componentDataModifyFlag && this.baseInfoModifyFlag) {
+        const shoot = await this.genShoot();
+        res = await savePage({
+          pageId: this.pageId,
+          saveType: 1,
+          compData: { components: this.components, pComponents: this.pComponents },
+          styleData: this.styleData,
+          shoot,
+          pageName: this.pageName,
+          pageDocName: this.pageDocName,
+        })
+      } else if (this.componentDataModifyFlag) {
+        const shoot = await this.genShoot();
+        res = await saveCompData(this.pageId, { components: this.components, pComponents: this.pComponents }, this.styleData, shoot);
+      } else if (this.baseInfoModifyFlag) {
+        res = await saveBaseInfo(this.pageId, this.pageName, this.pageDocName);
+      } else {
+        this.dataSaving = false;
+        return true;
+      }
+      if (res.code === 200) {
         this.$message.success('保存成功！');
+        this.setBaseInfoModifyFlag(false);
+        this.setComponentDataModifyFlag(false);
+        this.dataSaving = false;
+        return true;
       }
       this.dataSaving = false;
-      return status;
+      return false;
     },
 
-    async previewPage(id, isPageId) {
+    async previewPage(id, type) {
       this.previewVisible = true;
-      if (isPageId) {
+      if (type == 'page') {
         const flag = await this.saveData();
         if (!flag) return;
         this.previewVisible = true;
         this.previewSrc = `/preview?pageId=${id}`;
         this.previewTitle = '';
-      } else {
+      } else if (type == 'pageVersion'){
         this.previewSrc = `/preview?pVersionId=${id}`;
         this.previewTitle = '页面版本预览'
+      } else {
+        this.previewSrc = `/preview?pHistoryId=${id}`;
+        this.previewTitle = '页面历史更改预览'
       }
     }
   },
@@ -342,20 +485,32 @@ export default {
       top: 0;
       right: 0;
       height: 100%;
-
+      display: flex;
       &__item {
         height: 100%;
-        font-size: 14px;
+        font-size: 12px;
         padding: 0 14px;
         border-radius: 0px;
         color: rgb(91, 107, 115);
+        flex-direction: column;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 76px;
         &[disabled] {
-          color: #41b883;
-          background: rgb(242, 242, 242);
+          color: rgba(0,0,0,.25) !important;
+          background-color: #f5f5f5;
         }
         &:hover {
           color: #41b883;
           background: rgb(242, 242, 242);
+        }
+        i {
+          font-size: 20px;
+          margin-bottom: 2px;
+        }
+        span {
+          margin: 0;
         }
       }
     }
@@ -386,5 +541,9 @@ export default {
       background-color: #41b883;
     }
   }
+}
+
+/deep/.el-dialog {
+  margin: 0 auto;
 }
 </style>

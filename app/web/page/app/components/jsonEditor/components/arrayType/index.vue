@@ -226,6 +226,12 @@ export default {
       if (this.items.type !== "array" && this.items.enum) {
         return "enumType";
       }
+      if (this.items.type === 'boolean') {
+        return 'boolType';
+      }
+      if (this.items.type === 'number' && this.items.renderTo === 'range') {
+        return 'slideType';
+      }
       return this.items.type + "Type";
     },
     renderMutiSelect() {

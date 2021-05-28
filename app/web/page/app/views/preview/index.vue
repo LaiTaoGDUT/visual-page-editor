@@ -1,5 +1,5 @@
 <template>
-  <div class="preview">
+  <div class="preview" :style="styleData" style="position: relative">
     <component
       v-for="component in [...components, ...pComponents]"
       :key="component.name"
@@ -14,6 +14,7 @@
 
 <script>
 import { getPageDetail, versionDetail } from '@/services/pages';
+import { getPageHistoryDetail } from "@/services/pHistory";
 // 预注册所有需要用到的组件
 const context = require.context("COMP", true, /index\.vue$/);
 const preComponents = {};
@@ -67,9 +68,24 @@ export default {
         this.styleData = res.data.styleData;
       }
     }
+    if (query.pHistoryId) {
+      const res = await getPageHistoryDetail(query.pHistoryId);
+      if (res.code !== 200) {
+        this.$router.replace('/not-found');
+      } else {
+        this.components = res.data.pCompData.components;
+        this.pComponents = res.data.pCompData.pComponents;
+        document.title = res.data.pDocName;
+        this.styleData = res.data.pStyleData;
+      }
+    }
   }
 };
 </script>
 
 <style lang="less" scoped>
+.preview {
+  min-width: 100vw;
+  min-height: 100vh;
+}
 </style>

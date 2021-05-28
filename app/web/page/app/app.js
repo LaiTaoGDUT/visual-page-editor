@@ -6,6 +6,7 @@ import store from '@/store';
 import '@/plugins/andt-design-vue';
 import '@/plugins/element-ui';
 import '@/plugins/moment';
+import '@/plugins/tinymce';
 
 import '@/filters';
 import '@/directives';

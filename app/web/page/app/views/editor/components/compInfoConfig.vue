@@ -63,6 +63,7 @@ export default {
   watch: {
     currentComponent: {
       handler: function () {
+        this.newNameCache = this.currentComponent.name;
         this.curVersionId = this.currentComponent.versionId;
       },
       immediate: true,

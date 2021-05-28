@@ -12,10 +12,10 @@ module.exports = app => {
     cVersionName: STRING(16),
     createTime: DATE,
     cCodeLink: STRING(255),
-    defaultData: TEXT,
+    defaultData: TEXT('long'),
     defaultUse: BOOLEAN,
     cSchema: TEXT,
-    defaultStyle: TEXT,
+    defaultStyle: TEXT('long'),
     cStyleSchema: TEXT,
   }, {
     freezeTableName: true,

@@ -31,6 +31,43 @@ class UserController extends Controller {
     ctx.cookies.get('_iToken', null);
     return ctx.success({});
   }
+
+  async checkEmailRepeat() {
+    const { ctx } = this;
+    const { email } = ctx.query;
+    const repeat = await this.service.users.checkEmailRepeat(email);
+    if (repeat) {
+      return ctx.success({ code: RESPONSE_CODE.EMAIL_REPEAT });
+    } else {
+      return ctx.success({});
+    }
+  }
+
+  async register() {
+    const { ctx } = this;
+    const { email, username, password } = ctx.request.body;
+    const repeat = await this.service.users.checkEmailRepeat(email);
+    if (repeat) {
+      return ctx.fail({ code: RESPONSE_CODE.EMAIL_REPEAT });
+    }
+
+    if (username.length <= 0 || username.length > 16) {
+      return ctx.fail({ code: RESPONSE_CODE.USERNAME_INVALID })
+    }
+
+    if (password.length < 6 || password.length > 32) {
+      return ctx.fail({ code: RESPONSE_CODE.PASS_INVALID })
+    }
+
+    let cPassword = genPassword(password);
+    const user = await ctx.service.users.register(email, username, cPassword);
+    if (user) {
+      return ctx.success({})
+    } else {
+      return ctx.fail({ code: RESPONSE_CODE.REGISTER_FAIL });
+    }
+    
+  }
 }
 
 module.exports = UserController;

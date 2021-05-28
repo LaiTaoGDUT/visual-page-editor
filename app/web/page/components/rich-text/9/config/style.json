@@ -1,0 +1,13 @@
+{
+  "lineHeight": 20,
+  "leftPadding": 20,
+  "rightPadding": 20,
+  "topPadding": 20,
+  "bottomPadding": 20,
+  "backgroundColor": "rgba(255, 255, 255, 0)",
+  "backgroundImage": "",
+  "backgroundSize": "cover",
+  "backgroundWidth": "100%",
+  "backgroundHeight": "100%",
+  "backgroundRepeat": false
+}

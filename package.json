@@ -10,10 +10,12 @@
     "dev": "egg-bin dev",
     "lint": "eslint .",
     "fix": "eslint --fix .",
+    "webpack": "webpack --version",
     "ii": "npm install --registry https://registry.npm.taobao.org",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "dependencies": {
+    "@packy-tang/vue-tinymce": "^1.1.1",
     "ant-design-vue": "^1.7.2",
     "axios": "^0.18.1",
     "cross-env": "^5.0.0",
@@ -35,6 +37,7 @@
     "qrcanvas-vue": "^2.1.0",
     "sass": "^1.32.4",
     "sortablejs": "^1.13.0",
+    "tinymce": "^5.7.1",
     "vue": "^2.5.0",
     "vue-hot-reload-api": "^2.1.0",
     "vue-router": "^3.0.1",
@@ -54,7 +57,8 @@
     "imagemin-webpack-plugin": "^2.0.0",
     "less": "^4.1.0",
     "less-loader": "^7.2.1",
-    "sass-loader": "^10.1.1"
+    "sass-loader": "^10.1.1",
+    "webpack-cli": "^4.6.0"
   },
   "engines": {
     "node": ">=8.0.0"

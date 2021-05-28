@@ -17,6 +17,11 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "login" */ '@/views/login/index.vue'),
     },
     {
+      path: '/register',
+      name: 'register',
+      component: () => import(/* webpackChunkName: "register" */ '@/views/register/index.vue'),
+    },
+    {
       path: '/edit',
       name: 'editor',
       component: () => import(/* webpackChunkName: "editor" */ '@/views/editor/index.vue'),
@@ -62,7 +67,7 @@ router.beforeEach(async (to, from, next) => {
     await store.dispatch('compLib/getCompLib');
     await store.dispatch('compLib/pGetCompLib');
   }
-  if (to.path !== '/login') {
+  if (to.path !== '/login' && to.path !=='/register') {
     const res = await checkLogin();
     if (res.code === 300) {
       store.commit('user/setInfo', res.data);

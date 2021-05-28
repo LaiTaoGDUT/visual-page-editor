@@ -26,6 +26,21 @@ class UsersService extends Service {
       return false;
     }
   }
+
+  async checkEmailRepeat(email) {
+    const { ctx } = this;
+    const userNum = await ctx.model.Users.count({ where: { uMail: email } });
+    return userNum > 0;
+  } 
+
+  async register(email, username, password) {
+    const  { ctx } = this;
+    return await ctx.model.Users.create({
+      uMail: email,
+      uName: username,
+      uPassword: password,
+    });
+  }
 }
 
 module.exports = UsersService;

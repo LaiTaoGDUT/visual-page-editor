@@ -16,7 +16,7 @@
       <QRCanvas :options="qrCodeOpts"/>
     </div>
     <!-- <img :src="dataUrl" class="preview-dialog-qrcode"> -->
-    <iframe width="375" height="812" :src="src" class="preview-dialog-frame"> </iframe>
+    <iframe width="375" height="812" :src="src" class="preview-dialog-frame" style="border: 0px"> </iframe>
   </el-dialog>
 </template>
 
@@ -71,9 +71,9 @@ export default {
   },
   watch: {
     visible() {
-      this.$nextTick(async () => {
+      setTimeout(() => {
         document.querySelector('.preview-dialog-frame').contentWindow.location.reload();
-      })
+      }, 100)
     }
   }
 };

@@ -67,6 +67,12 @@ export default {
       if (this.item.type === "object" && !this.item.properties) {
         return "jsonType";
       }
+      if (this.item.type === 'boolean') {
+        return 'boolType';
+      }
+      if (this.item.type === 'number' && this.item.renderTo === 'range') {
+        return 'slideType';
+      }
       return this.item.type + "Type";
     },
   },

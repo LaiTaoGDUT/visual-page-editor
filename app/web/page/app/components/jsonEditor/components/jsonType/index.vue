@@ -66,7 +66,7 @@ export default {
       {
         value: JSON.stringify(this.nData, null, 4),
         ...this.options,
-        readOnly: this.disabled,
+        readOnly: this.disabled2,
       }
     );
     this.monacoInstance.onDidChangeModelContent((event) => {

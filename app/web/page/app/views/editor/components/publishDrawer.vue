@@ -52,7 +52,7 @@
           <a @click="publishVersion(record)" v-if="!record.publish">发布</a>
           <a @click="offVersion(record)" v-else>下线</a>
           <a-divider type="vertical" />
-          <a @click="$emit('openPreview', record.pVersionId)">预览</a>
+          <a @click="$emit('openPreview', record.pVersionId, 'pageVersion')">预览</a>
         </span>
       </a-table>
       <a-empty
@@ -77,8 +77,8 @@
 
 <script>
 import loading from "@/components/loading";
-import { saveCompData, saveBaseInfo, saveShoot, getPageVersionList, createPageVersion, publishVersion, offVersion } from '@/services/pages';
-import { mapState } from 'vuex';
+import { savePage, saveCompData, saveBaseInfo, getPageVersionList, createPageVersion, publishVersion, offVersion } from '@/services/pages';
+import { mapState, mapMutations } from 'vuex';
 import { stringifyDateTime } from '@/utils';
 import { QRCanvas } from 'qrcanvas-vue';
 import pageShoot from '@/mixins/pageShoot';
@@ -136,7 +136,7 @@ export default {
   },
   computed: {
     ...mapState("component", ["components", "pComponents"]),
-    ...mapState('page', ['styleData', 'pageName', 'pageDocName']),
+    ...mapState('page', ['styleData', 'pageName', 'pageDocName', 'baseInfoModifyFlag', 'componentDataModifyFlag']),
     publishSrc() {
       const publishVersion = this.versionList.find((item) => item.publish);
       if (publishVersion) {
@@ -164,6 +164,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations('page', ["setBaseInfoModifyFlag", "setComponentDataModifyFlag"]),
     async getVersionList() {
       this.loading = true;
       const res = await getPageVersionList(this.pageId);
@@ -262,19 +263,33 @@ export default {
       });
     },
     async saveData() {
-      const shoot = await this.genShoot();
-      const resArr = await Promise.all([
-        saveCompData(this.pageId, { components: this.components, pComponents: this.pComponents }),
-        saveBaseInfo(this.pageId, this.pageName, this.pageDocName),
-        saveShoot(this.pageId, shoot)
-      ])
-      const status = true;
-      resArr.forEach((res) => {
-        if (res.code !== 200) {
-          status = false;
-        }
-      })
-      return status;
+      let res = null;
+      if (this.componentDataModifyFlag && this.baseInfoModifyFlag) {
+        const shoot = await this.genShoot();
+        res = await savePage({
+          pageId: this.pageId,
+          saveType: 1,
+          compData: { components: this.components, pComponents: this.pComponents },
+          styleData: this.styleData,
+          shoot,
+          pageName: this.pageName,
+          pageDocName: this.pageDocName,
+        })
+      } else if (this.componentDataModifyFlag) {
+        const shoot = await this.genShoot();
+        res = await saveCompData(this.pageId, { components: this.components, pComponents: this.pComponents }, this.styleData, shoot);
+      } else if (this.baseInfoModifyFlag) {
+        res = await saveBaseInfo(this.pageId, this.pageName, this.pageDocName);
+      } else {
+        return true;
+      }
+      if (res.code === 200) {
+        this.$message.success('保存成功！');
+        this.setBaseInfoModifyFlag(false);
+        this.setComponentDataModifyFlag(false);
+        return true;
+      }
+      return false;
     },
     copy(value) {
       const input = document.createElement("input");

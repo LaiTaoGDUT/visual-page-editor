@@ -12,7 +12,13 @@ export default {
     },
     pCurrentComponent: (state) => {
       return state.pComponents[state.pComponentIndex];
-    }
+    },
+    originCompList (state, getters, rootState) {
+      return rootState.compLib.compList;
+    },
+    originPCompList (state, getters, rootState) {
+      return rootState.compLib.pCompLib;
+    },
   },
   mutations: {
     setComponents: (state, components) => {
@@ -39,6 +45,14 @@ export default {
     },
     changeComponentVersion: (state, { index, versionId }) => {
       state.components[index].versionId = versionId;
+      const componentInfo = state.originCompList.find((comp) => {
+        return comp.compId === state.components[index].id;
+      });
+      const curVersionDetail = componentInfo.details.find(
+        (detail) => detail.cVersionId == versionId
+      );
+      state.components[index].data = JSON.parse(JSON.stringify(curVersionDetail.defaultData));
+      state.components[index].style = JSON.parse(JSON.stringify(curVersionDetail.defaultStyle));
     },
     deleteComponent: (state, { index }) => {
       state.components.splice(index, 1);
@@ -66,6 +80,14 @@ export default {
     },
     pChangeComponentVersion: (state, { index, versionId }) => {
       state.pComponents[index].versionId = versionId;
+      const componentInfo = state.originPCompList.find((comp) => {
+        return comp.compId === state.pComponents[index].id;
+      });
+      const curVersionDetail = componentInfo.details.find(
+        (detail) => detail.cVersionId == versionId
+      );
+      state.pComponents[index].data = JSON.parse(JSON.stringify(curVersionDetail.defaultData));
+      state.pComponents[index].style = JSON.parse(JSON.stringify(curVersionDetail.defaultStyle));
     },
     pDeleteComponent: (state, { index }) => {
       state.pComponents.splice(index, 1);

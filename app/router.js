@@ -5,4 +5,5 @@ module.exports = app => {
   require('./router/components')(app);
   require('./router/templates')(app);
   require('./router/pages')(app);
+  require('./router/pHistory')(app);
 };

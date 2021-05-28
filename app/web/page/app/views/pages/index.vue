@@ -64,6 +64,9 @@
             >
             </a-card-meta>
           </a-card>
+          <a-empty v-if="pages.length <= 0"  style="width: 100%">
+            <span slot="description"> 暂无任何页面 </span>
+          </a-empty>
         </a-tab-pane>
         <template slot="tabBarExtraContent">
           <a-button @click="showCreateForm" v-show="!createFromVisible">

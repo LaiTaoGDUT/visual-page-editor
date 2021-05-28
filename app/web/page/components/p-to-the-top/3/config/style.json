@@ -1,9 +1,9 @@
 {
   "position": {
-    "right": 5,
-    "bottom": 5,
+    "right": "5vw",
+    "bottom": "5vh",
     "zIndex": 100,
-    "targeting": "absolute"
+    "position": "fixed"
   },
   "visibilityHeight": 100,
   "backgroundColor": "#41b883"

@@ -10,12 +10,14 @@ import normalInput from './components/normalInput';
 import dateTimeInput from './components/dateTimeInput';
 import colorInput from './components/colorInput';
 import imageInput from './components/imageInput';
+import richTextInput from './components/richTextInput';
 export default {
   components: {
     normalInput,
     dateTimeInput,
     colorInput,
-    imageInput
+    imageInput,
+    richTextInput
   },
   model: {
     prop: "oData",
@@ -71,6 +73,7 @@ export default {
         'date-time': 'dateTimeInput',
         'color': 'colorInput',
         'image': 'imageInput',
+        'richText': 'richTextInput',
       },
     };
   },

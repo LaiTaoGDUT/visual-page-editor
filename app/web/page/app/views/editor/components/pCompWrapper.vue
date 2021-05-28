@@ -19,7 +19,7 @@
       <div class="pcomp-wrapper__config" :style="menuStyle">
         <a-tooltip>
           <template slot="title"> 锁定组件 </template>
-          <a-icon type="lock" theme="filled" class="pcomp-wrapper-btd" @click="component.style.position.targeting = 'fixed'"/>
+          <a-icon type="lock" theme="filled" class="pcomp-wrapper-btd" />
         </a-tooltip>
         <a-tooltip>
           <template slot="title"> 删除组件 </template>
@@ -67,10 +67,20 @@ export default {
     const menuStyle = {};  // 菜单展开的位置
     styleProxy.right = toPx(Number(position.right.split('vw')[0]), 3.75);
     styleProxy.bottom = toPx(Number(position.bottom.split('vh')[0]), 8.12);
-    if (styleProxy.right < 58) {
-      menuStyle.left = '-58px'
+    if (position.maxWidth) {
+      menuStyle.right = '-2px';
+      if (styleProxy.bottom < 26) {
+        menuStyle.top = '-26px';
+      } else {
+        menuStyle.bottom = '-26px';
+      }
     } else {
-      menuStyle.right = '-58px'
+      menuStyle.top = '-2px';
+      if (styleProxy.right < 58) {
+        menuStyle.left = '-58px'
+      } else {
+        menuStyle.right = '-58px'
+      }
     }
     const styleProxy2 = {
       position: "absolute",
@@ -122,30 +132,32 @@ export default {
   },
   mounted() {
     this.selfRef = this.$refs[this.component.name];
-    this.selfRect = this.selfRef.getBoundingClientRect();
     this.painter = document.querySelector(".painter-canvas");
     this.painterInner = document.querySelector(".painter-canvas-inner");
     this.initDragable(true);
-    if (this.component.style.position.targeting === 'fixed') {
+    if (this.component.style.position.position === 'fixed') {
       // 通过 计算滚动长度模拟fixed定位
       this.painter.addEventListener("scroll", this.computeFixed);
       this.computeFixed();
     }
   },
   watch: {
-    "component.style.position.targeting": function(newTarget) {
+    "component.style.position.position": function(newTarget) {
       if (newTarget !== 'fixed') {
         this.painter.removeEventListener("scroll", this.computeFixed);
+        this.styleProxy2.position = newTarget;
       } else {
         this.painter.addEventListener("scroll", this.computeFixed);
+        // setTimeout(() => {
+        //   this.computeFixed();
+        // }, 200);
       }
-      this.styleProxy2.targeting = newTarget;
     },
     "component.style.position.zIndex": function(newIndex) {
       this.styleProxy2.zIndex = newIndex;
     },
     components() {
-      if (this.component.style.position.targeting === 'fixed') {
+      if (this.component.style.position.position === 'fixed') {
         setTimeout(() => {
           this.computeFixed();
         }, 200);
@@ -196,25 +208,36 @@ export default {
       this.enableDrag = true;
       this.downPosition.x = e.clientX;
       this.downPosition.y = e.clientY;
+      this.selfRect = this.selfRef.getBoundingClientRect();
     },
     move(e) {
       if (this.enableDrag) {
-        if (this.component.style.position.targeting === 'fixed') {
+        if (this.component.style.position.position === 'fixed') {
           const reHeight = this.painterInner.offsetHeight - this.painter.scrollTop - 812;
           this.styleProxy.bottom = Math.max(reHeight, this.styleProxy.bottom - (e.clientY - this.downPosition.y));
-          this.styleProxy.bottom = Math.min(this.painterInner.offsetHeight - this.painter.scrollTop - this.selfRect.height - 12, this.styleProxy.bottom);
+          this.styleProxy.bottom = Math.min(this.painterInner.offsetHeight - this.painter.scrollTop - this.selfRect.height, this.styleProxy.bottom);
         } else {
           this.styleProxy.bottom = Math.max(0, this.styleProxy.bottom - (e.clientY - this.downPosition.y));
-          this.styleProxy.bottom = Math.min(this.painterInner.offsetHeight - this.selfRect.height - 12, this.styleProxy.bottom);  
+          this.styleProxy.bottom = Math.min(this.painterInner.offsetHeight - this.selfRect.height, this.styleProxy.bottom);  
         }
         this.styleProxy.right = Math.max(0, this.styleProxy.right - (e.clientX - this.downPosition.x));
-        this.styleProxy.right = Math.min(375 - this.selfRect.width - 12, this.styleProxy.right);
-        if (this.styleProxy.right < 58){
-          this.menuStyle.left = '-58px';
-          this.menuStyle.right = null;
+        this.styleProxy.right = Math.min(375 - this.selfRect.width, this.styleProxy.right);
+        if (this.component.style.position.maxWidth) {
+          if (this.styleProxy.bottom < 26) {
+            this.menuStyle.top = '-26px';
+            this.menuStyle.bottom = null;
+          } else {
+            this.menuStyle.top = null;
+            this.menuStyle.bottom = '-26px';
+          }
         } else {
-          this.menuStyle.left = null;
-          this.menuStyle.right = '-58px';
+          if (this.styleProxy.right < 58) {
+            this.menuStyle.left = '-58px';
+            this.menuStyle.right = null;
+          } else {
+            this.menuStyle.left = null;
+            this.menuStyle.right = '-58px'
+          }
         }
         this.downPosition.x = e.clientX;
         this.downPosition.y = e.clientY;
@@ -224,9 +247,9 @@ export default {
       if (this.enableDrag) {
         this.enableDrag = false;
         const position = this.component.style.position;
-        if (position.targeting === 'fixed') {
+        if (position.position === 'fixed') {
           const reHeight = this.painterInner.offsetHeight - this.painter.scrollTop - 812;
-          position.bottom = toVh(this.styleProxy.bottom - reHeight);
+          position.bottom = toVh(this.styleProxy.bottom - reHeight) + 'vh';
         } else {
           position.bottom = toVh(this.styleProxy.bottom) + 'vh';
         }
@@ -235,7 +258,7 @@ export default {
     },
     computeFixed() {
       const reHeight = this.painterInner.offsetHeight - this.painter.scrollTop - 812;
-      this.styleProxy.bottom = toPx(this.component.style.position.bottom, 8.12) + reHeight;
+      this.styleProxy.bottom = toPx(Number(this.component.style.position.bottom.split('vh')[0]), 8.12) + reHeight;
     },
   },
 };
@@ -252,8 +275,6 @@ export default {
 .pcomp-wrapper {
   border: 2px solid transparent;
   padding: 4px;
-  min-width: 40px;
-  min-height: 40px;
   &-mask {
     position: absolute;
     top: 0;
@@ -264,7 +285,6 @@ export default {
 
   &__config {
     position: absolute;
-    top: -2px;
     background: #409eff;
     color: #ffffff;
     font-size: 16px;

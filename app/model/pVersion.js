@@ -11,8 +11,8 @@ module.exports = app => {
     pageId: INTEGER,
     pVersionName: STRING(16),
     createTime: DATE,
-    pStyleData: TEXT,
-    pCompData: TEXT,
+    pStyleData: TEXT('long'),
+    pCompData: TEXT('long'),
     publish: BOOLEAN,
     pDocName: STRING(100),
   }, {

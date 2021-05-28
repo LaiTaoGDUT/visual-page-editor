@@ -64,14 +64,13 @@
         class="temp-item"
         v-show="!loading"
         :key="template.templateId"
-        @dblclick="useTemplate(template.templateId)"
         v-for="template in showTemplateList"
       >
         <div class="temp-item__avator">
-          <el-image :src="getImg(template.tImageLink)" fit="contain">
+          <el-image :src="getImg(template.tImageLink)" fit="contain" :preview-src-list="[getImg(template.tImageLink)]">
           </el-image>
         </div>
-        <div class="temp-item__content">
+        <div class="temp-item__content" @click="useTemplate(template.templateId)">
           {{ template.tName }}
         </div>
         <div class="temp-item__desc">
@@ -107,11 +106,12 @@ import {
   getTempDetail,
   createTemplate
 } from "@/services/templates";
-import { saveCompData, saveBaseInfo, saveShoot } from "@/services/pages";
-import { mapState, mapMutations } from "vuex";
+import { saveCompData, saveBaseInfo, savePage } from "@/services/pages";
+import { mapState, mapGetters, mapMutations } from "vuex";
 import loading from "@/components/loading";
 import { getImg, stringifyDateTime } from "@/utils";
 import pageShoot from "@/mixins/pageShoot";
+import { getCompDetail } from "@/services/components";
 
 export default {
   data() {
@@ -135,8 +135,10 @@ export default {
     this.getTemplates();
   },
   computed: {
-    ...mapState("page", ["styleData", "pageName", "pageDocName"]),
+    ...mapState("page", ["styleData", "pageName", "pageDocName", 'baseInfoModifyFlag', 'componentDataModifyFlag']),
     ...mapState("component", ["components", "pComponents"]),
+    ...mapState("compLib", ["compLib", "pCompLib"]),
+    ...mapGetters("compLib", ["compList"]),
     showTemplateList() {
       return this.templateList.filter((template) => {
         return template.tName.includes(this.filterKey);
@@ -145,7 +147,7 @@ export default {
   },
   methods: {
     ...mapMutations("component", ["setComponents", "pSetComponents"]),
-    ...mapMutations("page", ["setPageStyleData"]),
+    ...mapMutations("page", ["setPageStyleData", "setBaseInfoModifyFlag", "setComponentDataModifyFlag"]),
     async getTemplates() {
       this.loading = true;
       const list = await getTemplates();
@@ -203,22 +205,33 @@ export default {
       });
     },
     async saveData() {
-      const shoot = await this.genShoot();
-      const resArr = await Promise.all([
-        saveCompData(this.pageId, {
-          components: this.components,
-          pComponents: this.pComponents,
-        }),
-        saveBaseInfo(this.pageId, this.pageName, this.pageDocName),
-        saveShoot(this.pageId, shoot),
-      ]);
-      const status = true;
-      resArr.forEach((res) => {
-        if (res.code !== 200) {
-          status = false;
-        }
-      });
-      return status;
+      let res = null;
+      if (this.componentDataModifyFlag && this.baseInfoModifyFlag) {
+        const shoot = await this.genShoot();
+        res = await savePage({
+          pageId: this.pageId,
+          saveType: 1,
+          compData: { components: this.components, pComponents: this.pComponents },
+          styleData: this.styleData,
+          shoot,
+          pageName: this.pageName,
+          pageDocName: this.pageDocName,
+        })
+      } else if (this.componentDataModifyFlag) {
+        const shoot = await this.genShoot();
+        res = await saveCompData(this.pageId, { components: this.components, pComponents: this.pComponents }, this.styleData, shoot);
+      } else if (this.baseInfoModifyFlag) {
+        res = await saveBaseInfo(this.pageId, this.pageName, this.pageDocName);
+      } else {
+        return true;
+      }
+      if (res.code === 200) {
+        this.$message.success('保存成功！');
+        this.setBaseInfoModifyFlag(false);
+        this.setComponentDataModifyFlag(false);
+        return true;
+      }
+      return false;
     },
     useTemplate(id) {
       const self = this;
@@ -230,6 +243,7 @@ export default {
             const res = await getTempDetail(id);
             if (res.code === 200) {
               const detail = res.data;
+              await self.betchDetails(detail.compData);
               self.setComponents(detail.compData.components);
               self.pSetComponents(detail.compData.pComponents);
               self.setPageStyleData(detail.styleData);
@@ -244,6 +258,43 @@ export default {
           });
         },
       });
+    },
+    // 批量获取组件的详细信息
+    async betchDetails(compData) {
+      const compArr = compData.components;
+      const pCompArr = compData.pComponents;
+      for (let comp of compArr) {
+        const componentInfo = this.compList.find((_comp) => {
+          return _comp.compId === comp.id;
+        });
+        if (!componentInfo.details) {
+          const compDetailList = await this.getCompDetail(comp.id);
+          if (compDetailList.length <= 0) return;
+          componentInfo.details = compDetailList;
+        }
+      }
+      for (let pComp of pCompArr) {
+        const componentInfo = this.pCompLib.find((_comp) => {
+          return _comp.compId === pComp.id;
+        });
+        if (!componentInfo.details) {
+          const compDetailList = await this.getCompDetail(pComp.id);
+          if (compDetailList.length <= 0) return;
+          componentInfo.details = compDetailList;
+        }
+      }
+    },
+    // 获取组件详细信息
+    async getCompDetail(id) {
+      try {
+        const res = await getCompDetail({ id });
+        if (res.code === 200) {
+          return res.data;
+        }
+      } catch (err) {
+        this.$message.error("添加组件失败了，请重试");
+        return false;
+      }
     },
   },
 };

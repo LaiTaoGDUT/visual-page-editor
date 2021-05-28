@@ -74,16 +74,23 @@ class ComponentController extends Controller {
       return ctx.fail({});
     }
   }
-  async saveCompData() {
+
+  async savePage() {
     const {ctx} = this;
-    let { pageId, compData } = ctx.request.body;
+    let { pageId, saveType, ...data } = ctx.request.body;
     const user = ctx.user;
     const { toInt } = ctx.helper;
     pageId = toInt(pageId);
+    saveType = toInt(saveType);
 
     if (isNaN(pageId) || pageId <= 0) {
       return ctx.fail({ code: RESPONSE_CODE.PARAMS_ERROR });
     }
+
+    if (isNaN(saveType) || saveType < 1 || saveType > 3) {
+      return ctx.fail({ code: RESPONSE_CODE.PARAMS_ERROR });
+    }
+
     const detail = await ctx.service.pages.getDetail(pageId);
     if (!detail) {
       return ctx.fail({ code: RESPONSE_CODE.PAGE_NOT_EXIST });
@@ -92,70 +99,19 @@ class ComponentController extends Controller {
       return ctx.fail({ code: RESPONSE_CODE.NO_PAGE_PERMISSION });
     }
 
-    const res = await ctx.service.pages.saveCompData(pageId, JSON.stringify(compData));
-    if (res) {
-      return ctx.success({});
-    } else {
-      return ctx.fail({});
+    let res = false;
+    if (saveType === 1) {
+      const resArr = await Promise.all([
+        ctx.service.pages.saveCompData(pageId, JSON.stringify(data.compData), JSON.stringify(data.styleData), data.shoot),
+        ctx.service.pages.saveBaseInfo(pageId, data.pageName, data.pageDocName)
+      ])
+      res = resArr.every((_res) => _res == true);
+    } else if (saveType === 2) {
+      res = await ctx.service.pages.saveCompData(pageId, JSON.stringify(data.compData), JSON.stringify(data.styleData), data.shoot);
+    } else if (saveType === 3) {
+      res = await ctx.service.pages.saveBaseInfo(pageId, data.pageName, data.pageDocName);
     }
-  }
-
-  async saveShoot() {
-    const {ctx} = this;
-    let { pageId, shoot } = ctx.request.body;
-    const user = ctx.user;
-    const { toInt } = ctx.helper;
-    pageId = toInt(pageId);
-
-    if (isNaN(pageId) || pageId <= 0) {
-      return ctx.fail({ code: RESPONSE_CODE.PARAMS_ERROR });
-    }
-    const detail = await ctx.service.pages.getDetail(pageId);
-    if (!detail) {
-      return ctx.fail({ code: RESPONSE_CODE.PAGE_NOT_EXIST });
-    }
-    if (detail.userId !== user.userId) {
-      return ctx.fail({ code: RESPONSE_CODE.NO_PAGE_PERMISSION });
-    }
-
-    const res = await ctx.service.pages.saveShoot(pageId, shoot);
-    if (res) {
-      return ctx.success({});
-    } else {
-      return ctx.fail({});
-    }
-
-  }
-
-  async saveBaseInfo() {
-    const {ctx} = this;
-    let { pageId, pageName, pageDocName } = ctx.request.body;
-    const user = ctx.user;
-    const { toInt } = ctx.helper;
-    pageId = toInt(pageId);
-    
-    if (isNaN(pageId) || pageId <= 0) {
-      return ctx.fail({ code: RESPONSE_CODE.PARAMS_ERROR });
-    }
-    const detail = await ctx.service.pages.getDetail(pageId);
-    if (!detail) {
-      return ctx.fail({ code: RESPONSE_CODE.PAGE_NOT_EXIST });
-    }
-    if (detail.userId !== user.userId) {
-      return ctx.fail({ code: RESPONSE_CODE.NO_PAGE_PERMISSION });
-    }
-    if (pageName.length > 100) {
-      return ctx.fail({ code: RESPONSE_CODE.PAGE_NAME_TOO_LONG });
-    }
-    if (pageDocName.length > 20) {
-      return ctx.fail({ code: RESPONSE_CODE.DOC_NAME_TOO_LONG });
-    }
-    const pageRepeat = await this._checkPageNameRepeat(user.userId, pageId, pageName);
-    if (!pageRepeat) {
-      return ctx.fail({ code: RESPONSE_CODE.PAGE_NAME_REPEAT });
-    }
-
-    const res = await ctx.service.pages.saveBaseInfo(pageId, pageName, pageDocName);
+    res = res && await ctx.service.pHistory.createHistory(await ctx.service.pages.getDetail(pageId), saveType);
     if (res) {
       return ctx.success({});
     } else {

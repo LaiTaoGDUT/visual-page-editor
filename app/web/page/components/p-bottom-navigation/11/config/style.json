@@ -1,0 +1,16 @@
+{
+  "position": {
+    "right": "0vw",
+    "bottom": "0vh",
+    "zIndex": 100,
+    "position": "fixed",
+    "maxWidth": true
+  },
+  "normalColor": "#ccc",
+  "selectColor": "#41b883",
+  "backgroundColor": "#ffffff",
+  "fontSize": 12,
+  "iconSize": 20,
+  "paddingTop": 10,
+  "paddingBottom": 10
+}

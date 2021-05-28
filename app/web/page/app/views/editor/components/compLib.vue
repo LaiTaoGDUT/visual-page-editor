@@ -35,7 +35,7 @@
             </div>
           </div>
           <div class="compLib-types__select">
-            <span :style="{ marginRight: 8 }">选择类别:</span>
+            <span :style="{ marginRight: '8px' }">选择类别:</span>
             <a-checkable-tag
               :checked="selectCompType === '全部'"
               @change="(checked) => handleTypeSelect('全部', checked)"

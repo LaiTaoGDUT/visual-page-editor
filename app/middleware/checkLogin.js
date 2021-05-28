@@ -8,10 +8,10 @@ module.exports = () => {
     const user = await ctx.service.users.checkLogin();
     if (!user) {
       if (/^(?!\/api)/.test(ctx.request.url)) {
-        if (/^(?!\/preview)/.test(ctx.request.url) && /^(?!\/act)/.test(ctx.request.url)) {
-          return ctx.redirect(`/login`);
+        if (/^(\/preview)/.test(ctx.request.url) || /^(\/act)/.test(ctx.request.url) || /^(\/register)/.test(ctx.request.url)) {
+          return await next();
         }
-        return await next();
+        return ctx.redirect(`/login`);
       } else {
         return ctx.fail({ code: RESPONSE_CODE.NOT_LOGIN });
       }

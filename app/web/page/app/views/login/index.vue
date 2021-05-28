@@ -9,7 +9,13 @@
         title="V E"
         sub-title="可视化网页搭建平台"
         :backIcon="false"
-      />
+      >
+        <template slot="extra">
+          <div class="pages-header-info">
+            <a @click="$router.push('/register')">注册</a>
+          </div>
+        </template>
+      </a-page-header>
     </div>
     <div class="login-content">
       <div class="login-content-title">邮箱登录</div>
@@ -32,7 +38,7 @@
           </a-input>
         </a-form-item>
         <a-form-item>
-          <a-input
+          <a-input-password
             v-decorator="[
               'password',
               {
@@ -47,7 +53,7 @@
               type="lock"
               style="color: rgba(0, 0, 0, 0.25)"
             />
-          </a-input>
+          </a-input-password>
         </a-form-item>
         <a-form-item>
           <a-checkbox
@@ -66,7 +72,7 @@
             立即登录
           </a-button>
           Or
-          <a> 去注册 </a>
+          <a @click="$router.push('/register')"> 去注册 </a>
         </a-form-item>
       </a-form>
     </div>

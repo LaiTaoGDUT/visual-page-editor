@@ -13,10 +13,10 @@ module.exports = app => {
     createTime: DATE,
     updateTime: DATE,
     locked: BOOLEAN,
-    pStyleData: TEXT,
-    pCompData: TEXT,
+    pStyleData: TEXT('long'),
+    pCompData: TEXT('long'),
     pDocName: STRING(100),
-    pImageLink: TEXT,
+    pImageLink: TEXT('long'),
   }, {
     freezeTableName: true,
     timestamps: false,
