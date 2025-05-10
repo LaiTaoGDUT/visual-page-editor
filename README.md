@@ -1,172 +1,26 @@
-# egg-vue-webpack-boilerplate
+系统总共分为四个页面，分别为登录注册页，页面选择页，页面编辑页与页面发布页。系统的页面结构图如图
 
-基于 Egg + Vue + Webpack 单页面服务端渲染(SSR)同构工程骨架项目
+![image](https://github.com/user-attachments/assets/8b8dd109-a408-47ac-bd29-6aff02ffdf71)
 
-## 文档
-
-- https://github.com/easy-team
-- https://www.yuque.com/easy-team
-- https://zhuanlan.zhihu.com/easywebpack
-
-
-## 1.特性
-
-
-- 基于 vue + vuex + vue-router + axios 单页面服务器客户端同构实现
-
-- 支持 server 和 client 端代码修改, webpack 时时编译和热更新, `npm start` 一键启动应用
-
-- 支持开发环境, 测试环境，正式环境 webpack 编译
  
 
-## 2.依赖
-
-- [easywebpack](https://github.com/easy-team/easywebpack) ^4.x.x
-- [easywebpack-vue](https://github.com/easy-team/easywebpack) ^4.x.x
-- [egg-view-vue-ssr](https://github.com/easy-team/egg-view-vue-ssr) ^3.0.2
-- [egg-webpack](https://github.com/easy-team/egg-webpack) ^4.x.x
-- [egg-webpack-vue](https://github.com/easy-team/egg-webpack-vue) ^2.0.0
+	在注册登录页包含注册表单与登录表单，允许用户通过填写表单注册或登录账号来使用系统的主要功能，注册登录页的界面设计如图，登录成功后，弹出成功提示并跳转至页面选择页。
+ ![image](https://github.com/user-attachments/assets/a6fe74fe-ac0c-479c-aeea-f8c799c35400)
 
 
-## 3. 使用
+在页面选择页包含用户创建的页面列表等主要内容，可查看用户创建的所有页面以及对页面进行操作，界面设计如图，页面内主要元素包括左上方的平台标识，右上方的登录用户昵称标识以及退出登录按钮，中央部分以卡片形式罗列所有页面项，页面项顶部展示页面预览图，下方为操作菜单，每个页面项提供三种操作，从左至右分别为编辑页面、预览页面与删除页面，选择编辑页面将跳转至页面编辑页，选择预览页面将跳转至页面预览页。页面列表的右上方提供新建页面按钮，点击后按钮隐藏，显示输入页面名的表单供用户新建页面。
+ 
+![image](https://github.com/user-attachments/assets/df43faea-354c-40b7-991c-e6f0c421d341)
 
-#### 3.1 安装cli(非必需)
+页面编辑页是系统的核心功能页，用户在页面编辑页中可以使用各种功能编辑自己的页面，页面编辑页的界面设计如图，内部含有普通组件列表、自定位组件列表、模板列表、画布、组件属性编辑框、页面属性编辑框等众多供页面编辑使用的模块，整个页面从左至右划分为三部分，左边部分是各种库的陈列与选择，内部含有普通组件库、自定位组件库与模板库三个标签页，用户可通过切换标签页查看和操作其中的内容，中央是画布模块，用户可在画布中实时查看页面的当前布置，并可在画布中选择和操作已添加到页面中的组件。右边部分是各种表单编辑框，内部含有页面配置和组件配置两个标签页，用户可通过切换标签页填写页面全局配置表单和选中的组件配置表单。除外，在页头中还含有全局操作菜单，包括保存功能，预览功能与发布功能，点击预览功能跳转至页面预览页，点击发布功能跳转至页面发布页。
+ 
+![image](https://github.com/user-attachments/assets/7ef17f11-1e5c-4dd3-b35e-394fba79ab4e)
 
-```bash
-npm install @easy-team/easywebpack-cli -g
-```
+页面预览页提供页面或页面版本的实际渲染效果预览功能，页面预览页的界面设计如图，页面上方是预览链接，点击后将在浏览器中新增一个标签页打开该页面，页面下方实时显示了实际预览效果。
+ 
+![image](https://github.com/user-attachments/assets/d05dd3e7-de9f-44ec-9ade-cffb0a228954)
 
+页面发布页提供页面版本列表的查看与页面的发布等功能，页面发布页的界面设计如图，页面上方提供了页面的访问链接以及链接的二维码，中部是有一个新增版本的按钮，点击后按钮隐藏，显示输入版本名称的表单供用户新建一个页面版本，下方是页面的版本列表，显示了页面版本的基本信息和发布情况，并提供下线版本和预览页面版本的操作，点击预览按钮跳转至页面预览页。
+ 
+![image](https://github.com/user-attachments/assets/1434626b-5a81-4bd5-8e11-bd6029a59999)
 
-#### 3.2 安装依赖
-
-```bash
-npm install
-```
-
-
-#### 3.3 启动应用
-
-##### 本地开发启动应用
-
-```bash
-npm run dev
-```
-
-应用访问: http://127.0.0.1:7001
-
-![npm start启动](https://github.com/easy-team/egg-vue-webpack-boilerplate/blob/feature/green/spa/docs/images/webpack-build.png)
-
-
-##### 发布模式启动应用
-
-- 首先在本地或者ci构建好jsbundle文件
-
-```bash
-npm run build 
-```
-
-- 然后,启动应用
-
-```bash
-npm start 
-```
-
-## 4. 功能实现
-
-#### 4.1 单页面前端实现
-
-在app/web/page 目录下面创建app目录, app.vue, app.js 文件.
-
-- app.vue 编写界面逻辑, 根元素为layout(自定义组件, 全局注册, 统一的html, meta, header, body)
-
-```html
-<template>
-  <app-layout>
-    <transition name="fade" mode="out-in">
-      <router-view></router-view>
-    </transition>
-  </app-layout>
-</template>
-<style lang="sass">
-
-</style>
-<script type="text/babel">
-  export default {
-    computed: {
-
-    },
-    mounted(){
-
-    }
-  }
-</script>
-```
-
-- app.js 页面调用入口
-
-```javascript
-import { sync } from 'vuex-router-sync';
-import store from 'store/app';
-import router from 'component/app/router';
-import app from './app.vue';
-import App from 'app';
-import Layout from 'component/layout/app';
-
-App.component(Layout.name, Layout);
-
-sync(store, router);
-
-export default App.init({
-  base: '/app',
-  ...app,
-  router,
-  store
-});
-
-```
-
-#### 4.2 单页面后端实现
-
-- 创建controller文件app.js
-
-```javascript
-exports.index = function* (ctx) {
-  yield ctx.render('app/app.js', { url: this.url.replace(/\/app/, '') });
-};
-```
-
-- 添加路由配置
-
-```javascript
-  app.get('/app(/.+)?', app.controller.app.app.index);
-```
-
-
-## 5. 打包部署
-
-http://hubcarl.github.io/easywebpack/vue/build/
-
-
-## 6. 实现原理
-
-### 6.1 本地`npm start`启动流程
-
-![本地启动流程](http://hubcarl.github.io/img/webpack/npm-start.png)
-
-### 6.2 服务端渲染页面访问流程
-
-![服务端渲染页面访问流程](http://hubcarl.github.io/img/webpack/egg-webpack-vue-ssr.png)
-
-
-### 6.3 详细资料
-
-- [Egg+Vue解决方案开发流程](http://hubcarl.github.io/easywebpack/vue/dev/)
-
-- [基于webpack的前端工程解决方案和egg+vue服务端渲染项目实践](http://hubcarl.github.io/blog/2017/04/15/webpack-project/)
-
-- [koa和egg项目webpack内存编译和热更新实现](http://hubcarl.github.io/blog/2017/04/15/egg-webpack/)
-
-
-## License
-
-[MIT](LICENSE)
